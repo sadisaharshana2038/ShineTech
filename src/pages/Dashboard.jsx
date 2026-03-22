@@ -324,28 +324,34 @@ const Dashboard = () => {
         
         try {
             setIsSubmitting(true);
-            let fixCount = 0;
-            const productionPrefix = '/Shine-Tech/';
+            const productionPrefixNew = '/ShineTech/';
+            const productionPrefixOld = '/Shine-Tech/';
 
             // Fix Products
             for (const p of products) {
-                if (p.image && p.image.startsWith(productionPrefix)) {
-                    const fixedImage = p.image.replace(productionPrefix, '');
-                    await updateProduct(p.id, { image: fixedImage });
-                    fixCount++;
+                let updated = false;
+                let newImage = p.image;
+                if (p.image && (p.image.startsWith(productionPrefixNew) || p.image.startsWith(productionPrefixOld))) {
+                    newImage = p.image.replace(productionPrefixNew, '').replace(productionPrefixOld, '');
+                    updated = true;
                 }
-                // Also check detailImages
-                if (p.detailImages && p.detailImages.some(img => img.startsWith(productionPrefix))) {
-                    const fixedDetails = p.detailImages.map(img => img.startsWith(productionPrefix) ? img.replace(productionPrefix, '') : img);
-                    await updateProduct(p.id, { detailImages: fixedDetails });
+                
+                let newDetailImages = p.detailImages;
+                if (p.detailImages && p.detailImages.some(img => img.startsWith(productionPrefixNew) || img.startsWith(productionPrefixOld))) {
+                    newDetailImages = p.detailImages.map(img => img.replace(productionPrefixNew, '').replace(productionPrefixOld, ''));
+                    updated = true;
+                }
+
+                if (updated) {
+                    await updateProduct(p.id, { image: newImage, detailImages: newDetailImages });
                     fixCount++;
                 }
             }
 
             // Fix Movies
             for (const m of movies) {
-                if (m.image && m.image.startsWith(productionPrefix)) {
-                    const fixedImage = m.image.replace(productionPrefix, '');
+                if (m.image && (m.image.startsWith(productionPrefixNew) || m.image.startsWith(productionPrefixOld))) {
+                    const fixedImage = m.image.replace(productionPrefixNew, '').replace(productionPrefixOld, '');
                     await updateMovie(m.id, { image: fixedImage }, null, true);
                     fixCount++;
                 }

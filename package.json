@@ -3,11 +3,11 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://sadisaharshana2038.github.io/Shine-Tech/",
+  "homepage": "https://sadisaharshana2038.github.io/ShineTech/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:gh": "vite build --base=/Shine-Tech/",
+    "build:gh": "vite build --base=/ShineTech/",
     "build:fb": "vite build --base=/",
     "lint": "eslint .",
     "preview": "vite preview",

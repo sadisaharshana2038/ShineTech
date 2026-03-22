@@ -63,11 +63,15 @@ export const formatImagePath = (img) => {
         return img;
     }
 
-    // In development/localhost, strip the production-only subfolder prefix if it exists
+    // In development/localhost, strip any production subfolder prefixes if they exist
     let cleanPath = img.startsWith('/') ? img.slice(1) : img;
     let finalPath = cleanPath;
-    if (import.meta.env.DEV && cleanPath.startsWith('Shine-Tech/')) {
-        finalPath = cleanPath.replace('Shine-Tech/', '');
+    if (import.meta.env.DEV) {
+        if (cleanPath.startsWith('ShineTech/')) {
+            finalPath = cleanPath.replace('ShineTech/', '');
+        } else if (cleanPath.startsWith('Shine-Tech/')) {
+            finalPath = cleanPath.replace('Shine-Tech/', '');
+        }
     }
 
     // Ensure we don't return "//" if path is empty after cleaning
