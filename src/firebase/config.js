@@ -1,19 +1,21 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBBnfoVDYOFTu8Ri9kEHkkKn2SQFTeRUXg",
-    authDomain: "shine-tech-dfebf.firebaseapp.com",
-    projectId: "shine-tech-dfebf",
-    storageBucket: "shine-tech-dfebf.firebasestorage.app",
-    messagingSenderId: "570549421083",
-    appId: "1:570549421083:web:3eb293740bdc74c17324be",
-    measurementId: "G-Q8HKTMEC57"
+    apiKey: "AIzaSyC0OLHjlCUE6h-10Nezy0nPDvQmzrlK5xM",
+    authDomain: "future-35c71.firebaseapp.com",
+    projectId: "future-35c71",
+    storageBucket: "future-35c71.firebasestorage.app",
+    messagingSenderId: "235355062295",
+    appId: "1:235355062295:web:8e5329c09bde463b981c52",
+    measurementId: "G-S2PX3WL5XX"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Enable persistence for zero-lag local loading
 import { enableIndexedDbPersistence } from "firebase/firestore";
@@ -27,4 +29,4 @@ if (typeof window !== "undefined") {
     });
 }
 
-export { db };
+export { db, storage };

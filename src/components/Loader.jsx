@@ -5,31 +5,45 @@ const Loader = ({ onFinished, ready }) => {
     const [progress, setProgress] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
 
-    useEffect(() => {
-        const startTime = Date.now();
-        const timeoutDuration = 2000; // 2s Nitro safety
+    const startTimeRef = React.useRef(Date.now());
+    const minDuration = 400; // Snappier high-tech vibe
+    const timeoutDuration = 8000; // 8s safety limit
 
+    useEffect(() => {
         const timer = setInterval(() => {
             setProgress((prev) => {
-                const elapsed = Date.now() - startTime;
+                const elapsed = Date.now() - startTimeRef.current;
 
-                // Nitro progress up to 90%
-                if (prev < 90) {
-                    return prev + 8; // Super fast climb
-                }
-
-                // Instant reveal if ready
-                if (ready || elapsed > timeoutDuration) {
+                // 1. If everything is ready and min time passed, finish
+                if (ready && elapsed >= minDuration) {
                     clearInterval(timer);
                     setIsComplete(true);
-                    setTimeout(onFinished, 50);
+                    setTimeout(onFinished, 150); // Faster transition
                     return 100;
                 }
 
-                // If not ready and at 90%, enter "breathe" mode (crawl very slowly)
-                return Math.min(99, prev + 0.1);
+                // 2. If data is ready but min time NOT passed, climb towards 100%
+                if (ready) {
+                    return Math.min(100, prev + 5);
+                }
+
+                // 3. If NOT ready, climb to 90% then crawl
+                if (prev < 90) {
+                    const targetProgress = (elapsed / 2000) * 90; // Aim for 90% in 2s
+                    return Math.min(90, targetProgress);
+                }
+
+                // 4. Safety timeout
+                if (elapsed >= timeoutDuration) {
+                    clearInterval(timer);
+                    setIsComplete(true);
+                    setTimeout(onFinished, 200);
+                    return 100;
+                }
+
+                return Math.min(99, prev + 0.1); // Slightly faster crawl
             });
-        }, 30);
+        }, 16);
 
         return () => clearInterval(timer);
     }, [onFinished, ready]);

@@ -1,0 +1,110 @@
+*******************************************************************************
+SHINE TECH - COMPLETE WEBSITE ARCHITECTURE & LOGIC DOCUMENTATION
+*******************************************************************************
+Date: 2026-03-22
+Project: Shine Tech - Premium Accessories & Cinema Archive
+Technology Stack: React 19, Vite, Firebase Firestore, Framer Motion, Lucide Icons
+
+This document details the complete logic used to build and maintain the website.
+It serves as a technical blueprint for duplicating or extending the site.
+
+===============================================================================
+1. CORE ARCHITECTURE (The "Engine")
+===============================================================================
+The website follows a "Single Source of Truth" pattern using React Context API.
+
+A. Inventory Context (src/context/InventoryContext.jsx)
+-------------------------------------------------------
+- Role: Manages all Products, Movies, and Orders.
+- Firebase Sync: Uses 'onSnapshot' for real-time updates. If a product is edited 
+  on one device, it reflects on all other devices instantly.
+- Local Fallback: Uses 'localInventory.json' to populate the site if the 
+  database is empty (Seeding).
+- Tombstone Deletion: Instead of a hard delete (which might fail on offline clients),
+  it uses { deleted: true }. The UI filters these out automatically.
+
+B. Cart Context (src/context/CartContext.jsx)
+---------------------------------------------
+- Role: Manages the shopping cart.
+- Persistence: Automatically saves the cart to 'localStorage' ('phone-shop-cart').
+- Logic: Handles adding items, increasing quantity, and calculating totals.
+
+C. Auth Context (src/security/auth.jsx)
+---------------------------------------
+- Role: Handles Admin Login.
+- Security: Implements a 5-minute lockout after 5 failed login attempts.
+- Credentials: (Current) Username: admin | Password: admin2026
+
+===============================================================================
+2. IMAGE PROCESSING LOGIC (Google Drive Integration)
+===============================================================================
+Location: src/utils/urlUtils.js (Function: getDirectDriveLink)
+
+One of the most critical parts of the site is the ability to use Google Drive 
+links as direct image sources.
+
+The Logic:
+1. Scan the URL for Google Drive patterns.
+2. Extract the unique "File ID" using Regex:
+   /\/file\/d\/([a-zA-Z0-9_-]+)|[?&]id=([a-zA-Z0-9_-]+)/
+3. Convert the ID into a Google Drive Thumbnail URL:
+   `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`
+   
+Benefits:
+- Free high-speed image hosting.
+- Bypasses the "Share View" page and directly loads the image data.
+- Automatically serves optimized sizes (sz=w1000).
+
+===============================================================================
+3. ADMIN PANEL LOGIC (Admin Dashboard)
+===============================================================================
+Location: src/pages/Dashboard.jsx
+
+The Admin Panel is a unified control center for Inventory, Movies, and Orders.
+
+A. Inventory Management:
+- "New Entry" form takes input for Name, Brand, Category, Price, and Stock.
+- Image Compression: Uses HTML5 Canvas (compressImage function) to shrink 
+  uploaded images before uploading to Firestore (target < 800KB).
+- "Star" Toggle: Sets 'isStarred: true' on a product to make it appear in the 
+  "Top Products" section on the Home Page.
+
+B. Movie Management:
+- Similar to products but includes fields for Quality, Telegram links, and 
+  Download links.
+- Supports specific attributes like 'isLatest' to highlight new arrivals.
+
+C. Order Management:
+- Real-time orders appear here.
+- Actions:
+  * "Update Status": Changes status (Pending -> Shipped -> Completed).
+  * "WhatsApp Integration": Opens a pre-filled WhatsApp chat with the customer 
+    using 'window.open(`https://wa.me/${phone}?text=${message}`)'.
+  * "Auto-Stock Sync": When an order status is changed to "Completed", the 
+    system automatically subtracts items from the Inventory stock.
+
+===============================================================================
+4. PRODUCT & ORDER WORKFLOW (End-to-End)
+===============================================================================
+1. Customer adds items to Cart -> CartContext saves to localStorage.
+2. Checkout: Customer fills form (`Shop.jsx`).
+3. Submission: 'addOrder' (InventoryContext) creates a Firebase document.
+4. Admin Notification: The Dashboard "Orders" tab shows a badge (e.g., "1").
+5. Fulfillment: Admin changes order to "Completed" -> Stock is subtracted.
+
+===============================================================================
+5. BUILD & DEPLOYMENT SCRIPT (CICD)
+===============================================================================
+File: package.json
+
+Scripts used:
+- npm run dev: Local development server.
+- npm run build:gh: Builds the app for GitHub Pages using a specific --base path.
+- npm run deploy: Rebuilds and pushes the 'dist' folder to the 'gh-pages' branch.
+
+CRITICAL: For GitHub Pages, the 'base' URL must match the repository name 
+(e.g., /Shine-Tech/) exactly or assets will fail to load.
+
+*******************************************************************************
+DOCUMENTATION END
+*******************************************************************************

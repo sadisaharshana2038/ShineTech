@@ -3,15 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://sadisaharshana2024-ops.github.io/shinetech/",
+  "homepage": "https://sadisaharshana2038.github.io/Shine-Tech/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:gh": "vite build --base=/Shine-Tech/",
+    "build:fb": "vite build --base=/",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build:gh",
     "deploy": "gh-pages -d dist",
-    "firebase-deploy": "npm run build && firebase deploy"
+    "firebase-deploy": "npm run build:fb && firebase deploy"
   },
   "dependencies": {
     "axios": "^1.13.4",

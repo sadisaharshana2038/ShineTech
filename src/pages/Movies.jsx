@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Play, Calendar, Clock, Monitor, Search, Filter, ShieldCheck, HardDrive, X } from 'lucide-react';
+import { Download, Play, Calendar, Clock, Monitor, Search, Filter, ShieldCheck, HardDrive, X, Smartphone } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import VisitorCounter from '../components/VisitorCounter';
 import { useInventory } from '../context/InventoryContext';
+import { formatImagePath } from '../utils/urlUtils';
 
 const Movies = () => {
     const { movies = [], loading } = useInventory();
@@ -12,6 +14,19 @@ const Movies = () => {
     const [selectedPreviewImage, setSelectedPreviewImage] = useState(null);
     const [activeDownloadId, setActiveDownloadId] = useState(null);
     const [activeQuality, setActiveQuality] = useState(null); // '720' or '1080'
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    const handleImageError = (e) => {
+        console.warn(`Movie image failed to load: ${e.target.src}`);
+        e.target.src = 'https://placehold.co/600x900/1a1a1a/ffffff?text=Poster+Coming+Soon';
+        e.target.onerror = null; // Prevent infinite loop
+    };
+
+    React.useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const genres = ['All', 'Latest', 'Action', 'Sci-Fi', 'Horror', 'Drama', 'Adventure', 'Animation'];
 
@@ -32,7 +47,8 @@ const Movies = () => {
 
             {/* Hero Section */}
             <div style={{
-                height: '40vh',
+                height: '30vh',
+                minHeight: '200px',
                 position: 'relative',
                 overflow: 'hidden',
                 display: 'flex',
@@ -44,24 +60,22 @@ const Movies = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    style={{ position: 'relative', textAlign: 'center', zIndex: 1 }}
+                    style={{ position: 'relative', textAlign: 'center', zIndex: 1, padding: '0 1rem' }}
                 >
-                    <h1 className="neon-text" style={{ fontSize: '4rem', marginBottom: '1rem' }}>CINEMA ARCHIVE</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', letterSpacing: '0.3em' }}>PREMIUM DOWNLOADS • 4K ULTRA HD</p>
+                    <h1 className="neon-text" style={{ fontSize: 'clamp(2rem, 10vw, 4rem)', marginBottom: '0.5rem' }}>CINEMA ARCHIVE</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 'clamp(0.8rem, 3vw, 1.1rem)', letterSpacing: '0.2em' }}>PREMIUM DOWNLOADS • 4K ULTRA HD</p>
                 </motion.div>
             </div>
 
-            <main className="movies-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '4rem 2rem' }}>
+            <main className="movies-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem min(2rem, 4vw)' }}>
                 {/* Search & Filter Bar */}
                 <div style={{
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '3rem',
-                    flexWrap: 'wrap',
-                    gap: '2rem'
+                    flexDirection: 'column',
+                    gap: '1.5rem',
+                    marginBottom: '3rem'
                 }}>
-                    <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, maxWidth: '500px', padding: '0.8rem 1.5rem' }}>
+                    <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', maxWidth: '600px', padding: '0.8rem 1.2rem', margin: '0 auto' }}>
                         <Search size={20} color="var(--primary)" />
                         <input
                             type="text"
@@ -72,7 +86,14 @@ const Movies = () => {
                         />
                     </div>
 
-                    <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{
+                        display: 'flex',
+                        gap: '0.6rem',
+                        overflowX: 'auto',
+                        padding: '0.5rem 0',
+                        maxWidth: '100%',
+                        justifyContent: isMobile ? 'flex-start' : 'center'
+                    }} className="hide-scrollbar mobile-container">
                         {genres.map(genre => (
                             <button
                                 key={genre}
@@ -81,8 +102,11 @@ const Movies = () => {
                                 style={{
                                     background: selectedGenre === genre ? 'var(--primary)' : 'var(--surface)',
                                     color: selectedGenre === genre ? 'black' : 'var(--text-muted)',
-                                    borderRadius: '12px',
-                                    padding: '0.6rem 1.2rem'
+                                    borderRadius: '10px',
+                                    padding: '0.5rem 1rem',
+                                    whiteSpace: 'nowrap',
+                                    fontSize: '0.9rem',
+                                    border: selectedGenre === genre ? 'none' : '1px solid var(--glass-border)'
                                 }}
                             >
                                 {genre}
@@ -94,8 +118,8 @@ const Movies = () => {
                 {/* Movie Grid */}
                 <div className="movies-grid" style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                    gap: '2.5rem'
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))',
+                    gap: '1.5rem'
                 }}>
                     <AnimatePresence mode='popLayout'>
                         {loading && movies.length === 0 ? (
@@ -113,15 +137,15 @@ const Movies = () => {
                                 className="glass-card"
                                 style={{ padding: 0, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}
                             >
-                                {/* Thumbnail */}
                                 <div
-                                    onClick={() => setSelectedPreviewImage(movie.image)}
-                                    style={{ position: 'relative', height: '400px', cursor: 'pointer', overflow: 'hidden' }}
+                                    onClick={() => setSelectedPreviewImage(formatImagePath(movie.image))}
+                                    style={{ position: 'relative', height: isMobile ? '300px' : '400px', cursor: 'pointer', overflow: 'hidden' }}
                                 >
                                     <motion.img
                                         whileHover={{ scale: 1.05 }}
-                                        src={movie.image}
+                                        src={formatImagePath(movie.image)}
                                         alt={movie.name}
+                                        onError={handleImageError}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
                                     <div style={{
@@ -152,7 +176,7 @@ const Movies = () => {
                                                 {movie.genre}
                                             </span>
                                         </div>
-                                        <h3 style={{ fontSize: '1.4rem' }}>{movie.name}</h3>
+                                        <h3 style={{ fontSize: '1.2rem' }}>{movie.name}</h3>
                                     </div>
                                 </div>
 
@@ -355,7 +379,7 @@ const Movies = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            padding: '2rem',
+                            padding: 'min(2rem, 5vw)',
                             cursor: 'zoom-out'
                         }}
                     >
@@ -378,6 +402,7 @@ const Movies = () => {
                             <img
                                 src={selectedPreviewImage}
                                 alt="Preview"
+                                onError={handleImageError}
                                 style={{
                                     display: 'block',
                                     maxWidth: '100%',
@@ -411,6 +436,15 @@ const Movies = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <footer style={{ marginTop: '4rem', padding: '3rem 2rem', borderTop: '1px solid var(--glass-border)', textAlign: 'center', background: 'rgba(0,0,0,0.3)' }}>
+                <VisitorCounter />
+                <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'center', gap: '0.8rem', alignItems: 'center', marginBottom: '1rem' }}>
+                    <Smartphone size={20} color="var(--primary)" />
+                    <h3 style={{ fontSize: '1.2rem' }} className="neon-text">SHINE TECH</h3>
+                </div>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>© 2026 High-Security Commerce System. All rights reserved.</p>
+            </footer>
         </div>
     );
 };

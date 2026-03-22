@@ -35,6 +35,10 @@
   --glass-border: rgba(255, 255, 255, 0.12);
   --radius: 16px;
   --transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Responsive Breakpoints */
+  --mobile: 768px;
+  --tablet: 1024px;
 }
 
 
@@ -142,6 +146,28 @@ button {
   animation: fadeIn 0.6s forwards;
 }
 
+.hide-mobile {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .show-mobile {
+    display: block !important;
+  }
+
+  .mobile-container {
+    padding: 1rem !important;
+  }
+}
+
+.show-mobile {
+  display: none;
+}
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -149,4 +175,38 @@ button {
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Website Creator Button - Shiny Effect */
+.creator-button {
+  display: inline-block;
+  margin-top: 2rem;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-decoration: none;
+  background: linear-gradient(to right,
+      #fff 20%,
+      #b0b0b0 30%,
+      #fff 70%,
+      #b0b0b0 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shiny 3s linear infinite;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s;
+}
+
+.creator-button:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+@keyframes shiny {
+  to {
+    background-position: 200% center;
+  }
 }

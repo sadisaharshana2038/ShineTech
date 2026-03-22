@@ -7,14 +7,18 @@ import { AuthProvider } from './security/auth'
 import { InventoryProvider } from './context/InventoryContext'
 import { CartProvider } from './context/CartContext'
 
+import ErrorBoundary from './components/ErrorBoundary'
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <InventoryProvider>
-        <CartProvider>
-          <App />
-        </CartProvider>
-      </InventoryProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <InventoryProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </InventoryProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )

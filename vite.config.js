@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/shinetech/',
+  // base: '/Shine-Tech/', // Subfolder for GH Pages, overridden by CLI for Firebase
   build: {
     rollupOptions: {
       output: {
